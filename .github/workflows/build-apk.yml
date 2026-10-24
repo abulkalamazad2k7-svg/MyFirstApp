@@ -8,7 +8,8 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
 
     steps:
       - name: Checkout source
@@ -19,14 +20,21 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y git zip unzip openjdk-17-jdk autoconf automake m4 libtool libtool-bin libltdl-dev pkg-config zlib1g-dev libncurses-dev libtinfo6 cmake libffi-dev libssl-dev
-          python -m pip install --upgrade pip
-          pip install buildozer cython==0.29.36
+          sudo apt-get install -y \
+            git zip unzip openjdk-17-jdk \
+            autoconf automake libtool libtool-bin \
+            pkg-config zlib1g-dev libncurses-dev \
+            cmake libffi-dev libssl-dev
 
-      - name: Build APK and accept SDK licenses
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install buildozer==1.5.0 cython==0.29.36
+
+      - name: Build APK
         run: yes | buildozer android debug
 
       - name: Upload APK
